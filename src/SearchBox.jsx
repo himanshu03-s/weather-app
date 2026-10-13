@@ -1,62 +1,10 @@
-import React, { useState } from 'react'
-import TextField from '@mui/material/TextField';
-import Button from '@mui/material/Button';
-import "./SearchBox.css";
-
-function SearchBox({updateInfo}) {   
-  let [city, setCity] = useState("");
-  let [error, setError] = useState(false);
-  const API_URL = "http://api.openweathermap.org/data/2.5/weather";
-  const API_KEY = "2d68a2a7616fca0c478021adeb378d30";
-
-  let getWeatherInfo = async () => {
-    try {
-       let response = await fetch(`${API_URL}?q=${city}&appid=${API_KEY}&units=metric`);
-    let jsonResponse = await response.json();
-    let result = {
-      city: city,
-      temp: jsonResponse.main.temp,
-      tempMin: jsonResponse.main.temp_min,
-      tempMax: jsonResponse.main.temp_max,
-      humidity: jsonResponse.main.humidity,
-      feelsLike: jsonResponse.main.feels_like,
-      weather: jsonResponse.weather[0].description,
-    };
-    console.log(result);
-    return result;
-    } catch(err) {
-     throw err;
-    }
-   
-  };
-
-    let handleChange =  (evt) => {
-        setCity(evt.target.value)
-    };
-
-    let handleSubmit = async (evt) => {
-      try {
-        evt.preventDefault();
-        console.log(city);
-        setCity("");
-        let newInfo = await getWeatherInfo();
-        updateInfo(newInfo); 
-      } catch(err){
-         setError(true);
-      }
-    };
-
-  return (
-    <div className='SearchBox'>
-       <form  onSubmit={handleSubmit}>
-         <TextField id="city" label="City Name" variant="outlined" required value={city} onChange={handleChange} />
-         <br />
-         <br />
-          <Button variant="contained" type='submit' >Search</Button>
-          {error && <p style={{color:"red"}}> No such place exists!</p>}
-       </form>
-    </div>
-  );
+﻿import { useState } from 'react'
+export default function SearchBox({ onSearch, loading }) {
+  const [city, setCity] = useState('')
+  return <form onSubmit={e => { e.preventDefault(); onSearch(city) }} className="flex flex-col gap-3 sm:flex-row">
+    <label className="min-w-0 flex-1"><span className="sr-only">City name</span><input required minLength={2} value={city} onChange={e => setCity(e.target.value)} placeholder="Search a city, e.g. London" className="w-full rounded-2xl border border-slate-200 bg-white px-6 py-4 lg:py-2.5 outline-none focus:border-sky-600 focus:ring-4 focus:ring-sky-600/10" /></label>
+    <button disabled={loading} className="rounded-2xl bg-sky-800 px-8 py-4 lg:py-2.5 font-semibold text-white hover:bg-sky-900 disabled:opacity-60">{loading ? 'Searching…' : 'Search city ↗'}</button>
+  </form>
 }
 
-export default SearchBox
+
